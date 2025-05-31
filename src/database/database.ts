@@ -14,7 +14,7 @@ export async function getConnection() {
   return await pool.getConnection();
 }
 
-export async function executeQuery(sql: string, params: any[] = []) {
+export async function query(sql: string, params: any[] = []) {
   let conn;
   try {
     conn = await pool.getConnection();
