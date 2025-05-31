@@ -19,7 +19,7 @@ export default class PollRepositoryImp implements PollRepository {
     }
   }
 
-  async findById(id: number): Promise<IPollWithOptions> {
+  async findById(id: number, userId?: number): Promise<IPollWithOptions> {
     try {
       const pollResults = await query(
         `
@@ -36,6 +36,17 @@ export default class PollRepositoryImp implements PollRepository {
       }
 
       const poll = pollResults[0] as IPoll;
+
+      let userVote = null;
+      if (userId) {
+        const voteResult = await query(
+          `SELECT option_id FROM votes WHERE poll_id = ? AND user_id = ?`,
+          [id, userId],
+        );
+        if (voteResult.length > 0) {
+          userVote = Number(voteResult[0].option_id);
+        }
+      }
 
       const optionsResults = await query(
         `
@@ -59,6 +70,7 @@ export default class PollRepositoryImp implements PollRepository {
       return {
         ...poll,
         options,
+        user_vote: userVote,
       };
     } catch (error) {
       if (error instanceof CustomError) {

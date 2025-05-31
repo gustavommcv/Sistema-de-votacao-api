@@ -9,12 +9,12 @@ export default class PollServiceImp implements PollService {
     @inject("PollRepository") private pollRepository: PollRepository,
   ) {}
 
-  async findAllPolls(): Promise<IPoll[]> {
-    return this.pollRepository.findAll();
+  async findPollById(id: number, userId?: number): Promise<IPollWithOptions> {
+    return this.pollRepository.findById(id, userId);
   }
 
-  async findPollById(id: number): Promise<IPollWithOptions> {
-    return this.pollRepository.findById(id);
+  async findAllPolls(): Promise<IPoll[]> {
+    return this.pollRepository.findAll();
   }
 
   async createPoll(pollData: CreatePollData): Promise<IPoll> {

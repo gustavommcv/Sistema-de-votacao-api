@@ -15,4 +15,5 @@ export interface IPollWithOptions extends IPoll {
     text: string;
     votes_count: number;
   }[];
+  user_vote?: number;
 }

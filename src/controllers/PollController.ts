@@ -47,7 +47,19 @@ export default class PollController {
   async getPollById(request: Request, response: Response) {
     try {
       const { id } = matchedData(request);
-      const poll = await this.pollService.findPollById(id);
+      const token = request.cookies.jwtToken;
+      let userId = null;
+
+      if (token) {
+        try {
+          const decoded = verifyToken(token);
+          userId = decoded.id;
+        } catch (error) {
+          console.warn("Invalid token, returning poll without user vote info");
+        }
+      }
+
+      const poll = await this.pollService.findPollById(id, userId);
 
       response.status(200).json({
         data: {
