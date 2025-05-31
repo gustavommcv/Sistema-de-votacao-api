@@ -1,6 +1,6 @@
 import { query } from "../database/database";
 import { IPoll, IPollWithOptions } from "../models/Poll";
-import PollRepository from "./PollRepository";
+import PollRepository, { CreatePollData } from "./PollRepository";
 import CustomError from "../util/CustomError";
 
 export default class PollRepositoryImp implements PollRepository {
@@ -65,6 +65,53 @@ export default class PollRepositoryImp implements PollRepository {
         throw error;
       }
       throw new CustomError("Error while fetching poll details", 500);
+    }
+  }
+
+  async create(pollData: CreatePollData): Promise<IPoll> {
+    try {
+      await query("START TRANSACTION");
+
+      // Converter datas para formato MySQL
+      const mysqlStartDate = new Date(pollData.start_date)
+        .toISOString()
+        .replace("T", " ")
+        .replace(/\.\d{3}Z$/, "");
+
+      const mysqlEndDate = new Date(pollData.end_date)
+        .toISOString()
+        .replace("T", " ")
+        .replace(/\.\d{3}Z$/, "");
+
+      const pollResult = await query(
+        `INSERT INTO ${this.tableName} (title, start_date, end_date, user_id) 
+       VALUES (?, ?, ?, ?)`,
+        [pollData.title, mysqlStartDate, mysqlEndDate, pollData.user_id],
+      );
+
+      const pollId = pollResult.insertId;
+
+      for (const optionText of pollData.options) {
+        await query(`INSERT INTO options (text, poll_id) VALUES (?, ?)`, [
+          optionText,
+          pollId,
+        ]);
+      }
+
+      await query("COMMIT");
+
+      const createdPoll = await query(
+        `SELECT p.*, u.email as user_email 
+       FROM ${this.tableName} p
+       JOIN users u ON p.user_id = u.id
+       WHERE p.id = ?`,
+        [pollId],
+      );
+
+      return createdPoll[0] as IPoll;
+    } catch (error) {
+      await query("ROLLBACK");
+      throw new CustomError("Error while creating poll", 500);
     }
   }
 }
