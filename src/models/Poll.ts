@@ -8,3 +8,11 @@ export interface IPoll {
   updated_at: string;
   user_email?: string;
 }
+
+export interface IPollWithOptions extends IPoll {
+  options: {
+    id: number;
+    text: string;
+    votes_count: number;
+  }[];
+}

@@ -2,10 +2,11 @@ import { inject, injectable } from "inversify";
 import { Request, Response } from "express";
 import PollService from "../services/PollService";
 import CustomError from "../util/CustomError";
+import { matchedData } from "express-validator";
 
 @injectable()
 export default class PollController {
-  constructor(@inject("PollService") private pollService: PollService) {}
+  constructor(@inject("PollService") private pollService: PollService) { }
 
   private getPollLinks(pollId: number) {
     return {
@@ -29,6 +30,31 @@ export default class PollController {
         links: {
           self: { method: "GET", href: "/polls" },
           create: { method: "POST", href: "/polls" },
+        },
+      });
+    } catch (error) {
+      if (error instanceof CustomError) {
+        response.status(error.status).json({ error: error.message });
+      } else {
+        console.error("Internal Error:", error);
+        response.status(500).json({ error: "Internal Server Error" });
+      }
+    }
+  }
+
+  async getPollById(request: Request, response: Response) {
+    try {
+      const { id } = matchedData(request);
+      const poll = await this.pollService.findPollById(id);
+
+      response.status(200).json({
+        data: {
+          ...poll,
+          links: this.getPollLinks(poll.id),
+        },
+        links: {
+          self: { method: "GET", href: `/polls/${id}` },
+          all: { method: "GET", href: "/polls" },
         },
       });
     } catch (error) {
