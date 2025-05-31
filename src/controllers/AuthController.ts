@@ -4,7 +4,6 @@ import { inject, injectable } from "inversify";
 import generateToken from "../util/generateToken";
 import AuthService from "../services/AuthService";
 import CustomError from "../util/CustomError";
-import { verifyToken } from "../util/auth";
 
 @injectable()
 export default class AuthController {

@@ -1,6 +1,7 @@
 import { Request, Response, Router } from "express";
 import userRouter from "./userRouter";
 import authRouter from "./authRouter";
+import pollRouter from "./pollRouter";
 
 const indexRouter = Router();
 
@@ -69,5 +70,6 @@ indexRouter.get("/", (_: Request, response: Response) => {
 
 indexRouter.use("/auth", authRouter);
 indexRouter.use("/users", userRouter);
+indexRouter.use("/polls", pollRouter);
 
 export default indexRouter;
