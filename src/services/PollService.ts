@@ -5,4 +5,5 @@ export default interface PollService {
   findAllPolls(): Promise<IPoll[]>;
   findPollById(id: number): Promise<IPollWithOptions>;
   createPoll(pollData: CreatePollData): Promise<IPoll>;
+  deletePoll(id: number, userId: number): Promise<void>;
 }

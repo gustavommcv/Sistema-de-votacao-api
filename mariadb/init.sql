@@ -49,9 +49,9 @@ INSERT INTO users (email, password) VALUES
 ('user3@example.com', '$2b$10$zmfBpOx.plmggjAw2K.3quK38oZg7exKx7MI8KHNi7xCLnXyZXeKa');
 
 INSERT INTO polls (title, start_date, end_date, user_id) VALUES 
-('Qual seu framework favorito?', '2023-01-01 00:00:00', '2023-12-31 23:59:59', 1),
+('Qual seu framework favorito?', '2025-01-01 00:00:00', '2026-12-31 23:59:59', 1),
 ('Qual linguagem você prefere?', '2023-02-01 00:00:00', '2023-12-31 23:59:59', 2),
-('Qual IDE você usa?', '2023-03-01 00:00:00', '2023-12-31 23:59:59', 1);
+('Qual IDE você usa?', '2026-03-01 00:00:00', '2026-12-31 23:59:59', 1);
 
 INSERT INTO options (text, poll_id) VALUES 
 ('React', 1),

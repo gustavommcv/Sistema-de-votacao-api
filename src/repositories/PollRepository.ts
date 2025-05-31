@@ -12,4 +12,5 @@ export default interface PollRepository {
   findAll(): Promise<IPoll[]>;
   findById(id: number): Promise<IPollWithOptions>;
   create(pollData: CreatePollData): Promise<IPoll>;
+  delete(id: number, userId: number): Promise<void>;
 }

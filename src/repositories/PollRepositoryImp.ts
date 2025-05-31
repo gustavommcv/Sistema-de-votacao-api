@@ -72,7 +72,6 @@ export default class PollRepositoryImp implements PollRepository {
     try {
       await query("START TRANSACTION");
 
-      // Converter datas para formato MySQL
       const mysqlStartDate = new Date(pollData.start_date)
         .toISOString()
         .replace("T", " ")
@@ -112,6 +111,48 @@ export default class PollRepositoryImp implements PollRepository {
     } catch (error) {
       await query("ROLLBACK");
       throw new CustomError("Error while creating poll", 500);
+    }
+  }
+
+  async delete(id: number, userId: number): Promise<void> {
+    try {
+      await query("START TRANSACTION");
+
+      const poll = await query(
+        `SELECT user_id FROM ${this.tableName} WHERE id = ?`,
+        [id],
+      );
+
+      if (poll.length === 0) {
+        throw new CustomError("Poll not found", 404);
+      }
+
+      if (poll[0].user_id !== userId) {
+        throw new CustomError(
+          "Unauthorized - You can only delete your own polls",
+          403,
+        );
+      }
+
+      await query(`DELETE FROM votes WHERE poll_id = ?`, [id]);
+
+      await query(`DELETE FROM options WHERE poll_id = ?`, [id]);
+
+      const result = await query(`DELETE FROM ${this.tableName} WHERE id = ?`, [
+        id,
+      ]);
+
+      if (result.affectedRows === 0) {
+        throw new CustomError("No poll was deleted", 500);
+      }
+
+      await query("COMMIT");
+    } catch (error) {
+      await query("ROLLBACK");
+      if (error instanceof CustomError) {
+        throw error;
+      }
+      throw new CustomError("Error while deleting poll", 500);
     }
   }
 }

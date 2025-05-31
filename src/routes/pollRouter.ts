@@ -34,4 +34,11 @@ pollRouter.post(
   pollController.createPoll.bind(pollController),
 );
 
+pollRouter.delete(
+  "/:id",
+  param("id").isInt().withMessage("ID must be an integer"),
+  validationErrors,
+  pollController.deletePoll.bind(pollController),
+);
+
 export default pollRouter;
