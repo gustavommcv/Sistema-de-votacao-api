@@ -10,6 +10,8 @@ const userController = container.get(UserController);
 
 userRouter.get("/", userController.getUsers.bind(userController));
 
+userRouter.get("/isLoggedIn", userController.verifyAuth.bind(userController));
+
 userRouter.get(
   "/:id",
   param("id")

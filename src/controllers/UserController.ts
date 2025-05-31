@@ -8,7 +8,7 @@ import UserRequestDTO from "../dto/UserRequestDTO";
 
 @injectable()
 export default class UserController {
-  constructor(@inject("UserService") private userService: UserService) {}
+  constructor(@inject("UserService") private userService: UserService) { }
 
   private getUserLinks(userId: number) {
     return {
@@ -166,4 +166,33 @@ export default class UserController {
       }
     }
   };
+
+  public async verifyAuth(request: Request, response: Response) {
+    const token = request.cookies.jwtToken;
+
+    if (!token) {
+      response.status(401).json({ authenticated: false });
+      return;
+    }
+
+    try {
+      const secretKey = process.env.JWT_SECRET;
+      if (!secretKey) throw new Error("JWT_SECRET not defined");
+
+      const decoded = verifyToken(token);
+
+      const user = await this.userService.findUserById(decoded.id);
+
+      response.json({
+        authenticated: true,
+        user: {
+          id: user.id,
+          email: user.email,
+        },
+      });
+    } catch (error) {
+      response.clearCookie("jwtToken");
+      response.status(401).json({ authenticated: false });
+    }
+  }
 }
