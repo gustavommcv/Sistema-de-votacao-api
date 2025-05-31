@@ -155,4 +155,65 @@ export default class PollRepositoryImp implements PollRepository {
       throw new CustomError("Error while deleting poll", 500);
     }
   }
+
+  async registerVote(
+    pollId: number,
+    optionId: number,
+    userId: number,
+  ): Promise<void> {
+    try {
+      await query("START TRANSACTION");
+
+      const poll = await query(
+        `SELECT start_date, end_date FROM ${this.tableName} WHERE id = ?`,
+        [pollId],
+      );
+
+      if (poll.length === 0) {
+        throw new CustomError("Poll not found", 404);
+      }
+
+      const now = new Date();
+      const startDate = new Date(poll[0].start_date);
+      const endDate = new Date(poll[0].end_date);
+
+      if (now < startDate || now > endDate) {
+        throw new CustomError(
+          "Voting is not allowed for this poll at this time",
+          400,
+        );
+      }
+
+      const option = await query(
+        `SELECT id FROM options WHERE id = ? AND poll_id = ?`,
+        [optionId, pollId],
+      );
+
+      if (option.length === 0) {
+        throw new CustomError("Invalid option for this poll", 400);
+      }
+
+      const existingVote = await query(
+        `SELECT id FROM votes WHERE poll_id = ? AND user_id = ?`,
+        [pollId, userId],
+      );
+
+      if (existingVote.length > 0) {
+        throw new CustomError("You have already voted in this poll", 400);
+      }
+
+      await query(
+        `INSERT INTO votes (poll_id, option_id, user_id) VALUES (?, ?, ?)`,
+        [pollId, optionId, userId],
+      );
+
+      await query("COMMIT");
+    } catch (error) {
+      await query("ROLLBACK");
+      if (error instanceof CustomError) {
+        throw error;
+      }
+      throw new CustomError("Error while registering vote", 500);
+    }
+  }
 }

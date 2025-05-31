@@ -9,6 +9,16 @@ const pollController = container.get(PollController);
 
 pollRouter.get("/", pollController.getAllPolls.bind(pollController));
 
+pollRouter.post(
+  "/:id/vote",
+  [
+    param("id").isInt().withMessage("Poll ID must be an integer"),
+    body("option_id").isInt().withMessage("Option ID must be an integer"),
+    validationErrors,
+  ],
+  pollController.vote.bind(pollController),
+);
+
 pollRouter.get(
   "/:id",
   param("id").isInt().withMessage("ID must be an integer"),
@@ -40,5 +50,4 @@ pollRouter.delete(
   validationErrors,
   pollController.deletePoll.bind(pollController),
 );
-
 export default pollRouter;

@@ -7,7 +7,7 @@ import PollService from "./PollService";
 export default class PollServiceImp implements PollService {
   constructor(
     @inject("PollRepository") private pollRepository: PollRepository,
-  ) { }
+  ) {}
 
   async findAllPolls(): Promise<IPoll[]> {
     return this.pollRepository.findAll();
@@ -23,5 +23,13 @@ export default class PollServiceImp implements PollService {
 
   async deletePoll(id: number, userId: number): Promise<void> {
     return this.pollRepository.delete(id, userId);
+  }
+
+  async registerVote(
+    pollId: number,
+    optionId: number,
+    userId: number,
+  ): Promise<void> {
+    return this.pollRepository.registerVote(pollId, optionId, userId);
   }
 }

@@ -8,7 +8,7 @@ import { CreatePollData } from "../repositories/PollRepository";
 
 @injectable()
 export default class PollController {
-  constructor(@inject("PollService") private pollService: PollService) { }
+  constructor(@inject("PollService") private pollService: PollService) {}
 
   private getPollLinks(pollId: number) {
     return {
@@ -131,6 +131,41 @@ export default class PollController {
         message: "Poll deleted successfully",
         links: {
           all: { method: "GET", href: "/polls" },
+        },
+      });
+    } catch (error) {
+      if (error instanceof CustomError) {
+        response.status(error.status).json({ error: error.message });
+      } else {
+        console.error("Internal Error:", error);
+        response.status(500).json({ error: "Internal Server Error" });
+      }
+    }
+  }
+
+  async vote(request: Request, response: Response) {
+    try {
+      const { id: pollId } = matchedData(request, { locations: ["params"] });
+      const { option_id } = matchedData(request, { locations: ["body"] });
+      const token = request.cookies.jwtToken;
+
+      if (!token) {
+        throw new CustomError("Authentication required", 401);
+      }
+
+      const { id: userId } = verifyToken(token);
+
+      await this.pollService.registerVote(
+        Number(pollId),
+        Number(option_id),
+        userId,
+      );
+
+      response.status(200).json({
+        message: "Vote registered successfully",
+        links: {
+          poll: { method: "GET", href: `/polls/${pollId}` },
+          results: { method: "GET", href: `/polls/${pollId}/results` },
         },
       });
     } catch (error) {
