@@ -5,8 +5,8 @@ import pollRouter from "./pollRouter";
 
 const indexRouter = Router();
 
-indexRouter.get("/", (_: Request, response: Response) => {
-  response.json({
+indexRouter.get("/", (_: Request, res: Response) => {
+  res.json({
     message: "Bem-vindo à API de Sistema de Votação da Signo Tech!",
     endpoints: {
       auth: {
@@ -61,6 +61,53 @@ indexRouter.get("/", (_: Request, response: Response) => {
           method: "DELETE",
           path: "/users",
           description: "Remove um usuário",
+        },
+      },
+      polls: {
+        getAll: {
+          method: "GET",
+          path: "/polls",
+          description: "Lista todas as enquetes",
+        },
+        getById: {
+          method: "GET",
+          path: "/polls/:id",
+          description: "Obtém uma enquete específica pelo ID",
+        },
+        create: {
+          method: "POST",
+          path: "/polls",
+          description: "Cria uma nova enquete",
+          body: {
+            title: "string (obrigatório)",
+            start_date: "string (data ISO 8601, obrigatória)",
+            end_date: "string (data ISO 8601, obrigatória)",
+            options: "array de strings (mínimo 3 opções, obrigatórias)",
+          },
+        },
+        vote: {
+          method: "POST",
+          path: "/polls/:id/vote",
+          description: "Vota em uma opção da enquete",
+          params: {
+            id: "number (ID da enquete)",
+          },
+          body: {
+            option_id: "number (ID da opção)",
+          },
+        },
+        updateTitle: {
+          method: "PATCH",
+          path: "/polls/:id/title",
+          description: "Atualiza o título da enquete",
+          body: {
+            title: "string (novo título)",
+          },
+        },
+        delete: {
+          method: "DELETE",
+          path: "/polls/:id",
+          description: "Remove uma enquete",
         },
       },
     },
