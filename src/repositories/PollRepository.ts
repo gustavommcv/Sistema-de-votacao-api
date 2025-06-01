@@ -14,4 +14,5 @@ export default interface PollRepository {
   create(pollData: CreatePollData): Promise<IPoll>;
   delete(id: number, userId: number): Promise<void>;
   registerVote(pollId: number, optionId: number, userId: number): Promise<void>;
+  updatePollTitle(id: number, title: string, userId: number): Promise<void>;
 }

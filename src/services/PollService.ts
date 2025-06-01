@@ -7,4 +7,5 @@ export default interface PollService {
   createPoll(pollData: CreatePollData): Promise<IPoll>;
   deletePoll(id: number, userId: number): Promise<void>;
   registerVote(pollId: number, optionId: number, userId: number): Promise<void>;
+  updatePollTitle(id: number, title: string, userId: number): Promise<void>;
 }

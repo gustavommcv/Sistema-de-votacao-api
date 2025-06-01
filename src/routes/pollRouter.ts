@@ -19,6 +19,16 @@ pollRouter.post(
   pollController.vote.bind(pollController),
 );
 
+pollRouter.patch(
+  "/:id/title",
+  [
+    param("id").isInt().withMessage("ID deve ser um número inteiro"),
+    body("title").isString().notEmpty().withMessage("Título é obrigatório"),
+    validationErrors,
+  ],
+  pollController.updatePollTitle.bind(pollController),
+);
+
 pollRouter.get(
   "/:id",
   param("id").isInt().withMessage("ID must be an integer"),
@@ -50,4 +60,5 @@ pollRouter.delete(
   validationErrors,
   pollController.deletePoll.bind(pollController),
 );
+
 export default pollRouter;

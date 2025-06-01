@@ -228,4 +228,39 @@ export default class PollRepositoryImp implements PollRepository {
       throw new CustomError("Error while registering vote", 500);
     }
   }
+
+  async updatePollTitle(
+    id: number,
+    title: string,
+    userId: number,
+  ): Promise<void> {
+    try {
+      await query("START TRANSACTION");
+
+      const poll = await query(
+        `SELECT id FROM ${this.tableName} WHERE id = ? AND user_id = ?`,
+        [id, userId],
+      );
+
+      if (poll.length === 0) {
+        throw new CustomError(
+          "Enquete não encontrada ou você não tem permissão para editá-la",
+          404,
+        );
+      }
+
+      await query(
+        `UPDATE ${this.tableName} SET title = ?, updated_at = NOW() WHERE id = ?`,
+        [title, id],
+      );
+
+      await query("COMMIT");
+    } catch (error) {
+      await query("ROLLBACK");
+      if (error instanceof CustomError) {
+        throw error;
+      }
+      throw new CustomError("Erro ao atualizar enquete", 500);
+    }
+  }
 }

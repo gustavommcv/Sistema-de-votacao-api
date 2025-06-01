@@ -8,7 +8,7 @@ import { CreatePollData } from "../repositories/PollRepository";
 
 @injectable()
 export default class PollController {
-  constructor(@inject("PollService") private pollService: PollService) {}
+  constructor(@inject("PollService") private pollService: PollService) { }
 
   private getPollLinks(pollId: number) {
     return {
@@ -186,6 +186,37 @@ export default class PollController {
       } else {
         console.error("Internal Error:", error);
         response.status(500).json({ error: "Internal Server Error" });
+      }
+    }
+  }
+
+  async updatePollTitle(request: Request, response: Response) {
+    try {
+      const { id } = matchedData(request, { locations: ["params"] });
+      const { title } = matchedData(request, { locations: ["body"] });
+      const token = request.cookies.jwtToken;
+
+      if (!token) {
+        throw new CustomError("Autenticação necessária", 401);
+      }
+
+      const { id: userId } = verifyToken(token);
+
+      await this.pollService.updatePollTitle(Number(id), title, userId);
+
+      response.status(200).json({
+        message: "Título da enquete atualizado com sucesso",
+        links: {
+          poll: { method: "GET", href: `/polls/${id}` },
+          all: { method: "GET", href: "/polls" },
+        },
+      });
+    } catch (error) {
+      if (error instanceof CustomError) {
+        response.status(error.status).json({ error: error.message });
+      } else {
+        console.error("Erro ao atualizar enquete:", error);
+        response.status(500).json({ error: "Erro interno do servidor" });
       }
     }
   }
