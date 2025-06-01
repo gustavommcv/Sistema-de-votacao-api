@@ -1,9 +1,10 @@
 import "reflect-metadata";
 import "dotenv/config";
-import server from "./server";
+import { httpServer } from "./server";
 
 const port = process.env.API_PORT || 3000;
 
-server.listen(port, () => {
-  console.log(`O servidor esta rodando em: http://localhost:${port}`);
+httpServer.listen(port, () => {
+  console.log(`Servidor rodando na porta ${port} com WebSocket`);
+  console.log(`Acesse: http://localhost:${port}`);
 });

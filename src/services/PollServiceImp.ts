@@ -2,6 +2,7 @@ import { inject, injectable } from "inversify";
 import { IPoll, IPollWithOptions } from "../models/Poll";
 import PollRepository, { CreatePollData } from "../repositories/PollRepository";
 import PollService from "./PollService";
+import { io } from "../server";
 
 @injectable()
 export default class PollServiceImp implements PollService {
@@ -30,7 +31,14 @@ export default class PollServiceImp implements PollService {
     optionId: number,
     userId: number,
   ): Promise<void> {
-    return this.pollRepository.registerVote(pollId, optionId, userId);
+    await this.pollRepository.registerVote(pollId, optionId, userId);
+
+    const updatedPoll = await this.pollRepository.findById(pollId);
+
+    io.to(`poll_${pollId}`).emit("voteUpdated", {
+      pollId,
+      options: updatedPoll.options,
+    });
   }
 
   async updatePollTitle(
