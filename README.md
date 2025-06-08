@@ -2,6 +2,8 @@
 
 Backend do sistema de votação desenvolvido em Node.js com TypeScript.
 
+[Link Frontend](https://github.com/gustavommcv/sistema-de-votacao-client)
+
 ## Tecnologias Utilizadas
 
 - Node.js
